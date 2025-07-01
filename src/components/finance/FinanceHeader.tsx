@@ -1,5 +1,6 @@
 "use client";
 
+import { ModeToggle } from "@/components/themes/ThemeSwitch";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { signOut } from "next-auth/react";
@@ -22,13 +23,15 @@ export function FinanceHeader({
 						<TabsTrigger value="config">Configurações</TabsTrigger>
 					</TabsList>
 				</Tabs>
-				<Button
-					variant="outline"
-					className="ml-4"
-					onClick={() => signOut({ callbackUrl: "/" })}
-				>
-					Sair
-				</Button>
+				<div className="flex items-center gap-2">
+					<ModeToggle />
+					<Button
+						variant="outline"
+						onClick={() => signOut({ callbackUrl: "/" })}
+					>
+						Sair
+					</Button>
+				</div>
 			</div>
 		</header>
 	);
