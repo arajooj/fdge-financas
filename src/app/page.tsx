@@ -1,8 +1,8 @@
 import Link from "next/link";
 
-import { FinanceManager } from "@/components/finance/FinanceManager";
+import ClientTabsLayout from "@/components/finance/ClientTabsLayout";
 import { auth } from "@/server/auth";
-import { HydrateClient, api } from "@/trpc/server";
+import { HydrateClient } from "@/trpc/server";
 
 export default async function Home() {
 	const session = await auth();
@@ -28,9 +28,7 @@ export default async function Home() {
 
 	return (
 		<HydrateClient>
-			<main className="min-h-screen bg-gray-50">
-				<FinanceManager />
-			</main>
+			<ClientTabsLayout />
 		</HydrateClient>
 	);
 }
