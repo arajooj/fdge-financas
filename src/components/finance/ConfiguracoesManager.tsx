@@ -28,6 +28,7 @@ export function ConfiguracoesManager() {
 		tipoSaida: false,
 		tipoEntrada: false,
 		formaPagamento: false,
+		local: false,
 	});
 
 	// Queries
@@ -37,6 +38,8 @@ export function ConfiguracoesManager() {
 		api.finance.getTiposEntrada.useQuery();
 	const { data: formasPagamento, refetch: refetchFormasPagamento } =
 		api.finance.getFormasPagamento.useQuery();
+	const { data: locais, refetch: refetchLocais } =
+		api.finance.getLocais.useQuery();
 	const { data: resumo } = api.finance.getResumo.useQuery({});
 
 	// Mutations
@@ -58,6 +61,13 @@ export function ConfiguracoesManager() {
 		onSuccess: () => {
 			refetchFormasPagamento();
 			setLoadingStates((prev) => ({ ...prev, formaPagamento: false }));
+		},
+	});
+
+	const createLocal = api.finance.createLocal.useMutation({
+		onSuccess: () => {
+			refetchLocais();
+			setLoadingStates((prev) => ({ ...prev, local: false }));
 		},
 	});
 
@@ -96,6 +106,17 @@ export function ConfiguracoesManager() {
 		await createFormaPagamento.mutateAsync({
 			name,
 			emoji: emoji || undefined,
+			description: description || undefined,
+		});
+	};
+
+	const handleCreateLocal = async (formData: FormData) => {
+		setLoadingStates((prev) => ({ ...prev, local: true }));
+		const name = formData.get("name") as string;
+		const description = formData.get("description") as string;
+
+		await createLocal.mutateAsync({
+			name,
 			description: description || undefined,
 		});
 	};
@@ -346,6 +367,87 @@ export function ConfiguracoesManager() {
 							{formasPagamento?.length === 0 && (
 								<p className="py-4 text-center text-muted-foreground text-sm">
 									Nenhuma forma de pagamento configurada
+								</p>
+							)}
+						</div>
+					</CardContent>
+				</Card>
+
+				{/* Locais */}
+				<Card>
+					<CardHeader>
+						<CardTitle className="flex items-center gap-2">
+							<span>📍</span>
+							Locais
+						</CardTitle>
+						<CardDescription>
+							Configure os estabelecimentos onde você faz transações
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="space-y-4">
+						<Dialog>
+							<DialogTrigger asChild>
+								<Button size="sm" className="w-full">
+									Adicionar Local
+								</Button>
+							</DialogTrigger>
+							<DialogContent>
+								<DialogHeader>
+									<DialogTitle>Novo Local</DialogTitle>
+									<DialogDescription>
+										Crie um novo estabelecimento
+									</DialogDescription>
+								</DialogHeader>
+								<form action={handleCreateLocal} className="space-y-4">
+									<div>
+										<Label htmlFor="name-local">Nome</Label>
+										<Input
+											id="name-local"
+											name="name"
+											placeholder="Supermercado ABC"
+											required
+										/>
+									</div>
+									<div>
+										<Label htmlFor="description-local">Descrição</Label>
+										<Input
+											id="description-local"
+											name="description"
+											placeholder="Local onde faço compras"
+										/>
+									</div>
+									<Button
+										type="submit"
+										disabled={loadingStates.local}
+										className="w-full"
+									>
+										{loadingStates.local ? "Criando..." : "Criar Local"}
+									</Button>
+								</form>
+							</DialogContent>
+						</Dialog>
+
+						<Separator />
+
+						<div className="space-y-2">
+							{locais?.map((local) => (
+								<div
+									key={local.id}
+									className="flex items-center justify-between rounded-lg border p-2"
+								>
+									<div>
+										<span className="font-medium">{local.name}</span>
+										{local.description && (
+											<p className="text-muted-foreground text-sm">
+												{local.description}
+											</p>
+										)}
+									</div>
+								</div>
+							))}
+							{locais?.length === 0 && (
+								<p className="py-4 text-center text-muted-foreground text-sm">
+									Nenhum local configurado
 								</p>
 							)}
 						</div>

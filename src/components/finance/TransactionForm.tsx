@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { UploadButton } from "@/lib/uploadthing";
 import { api } from "@/trpc/react";
 import { useState } from "react";
 
@@ -27,11 +28,13 @@ export function TransactionForm() {
 	const [tipoTransacao, setTipoTransacao] = useState<"entrada" | "saida" | "">(
 		"",
 	);
+	const [comprovanteUrl, setComprovanteUrl] = useState<string>("");
 
 	// Queries
 	const { data: tiposSaida } = api.finance.getTiposSaida.useQuery();
 	const { data: tiposEntrada } = api.finance.getTiposEntrada.useQuery();
 	const { data: formasPagamento } = api.finance.getFormasPagamento.useQuery();
+	const { data: locais } = api.finance.getLocais.useQuery();
 
 	// Mutations
 	const createTransacao = api.finance.createTransacao.useMutation({
@@ -53,6 +56,7 @@ export function TransactionForm() {
 		const valor = Number.parseFloat(formData.get("valor") as string);
 		const data = new Date(formData.get("data") as string);
 		const observacoes = formData.get("observacoes") as string;
+		const localId = formData.get("localId") as string;
 		const tipoEntradaId = formData.get("tipoEntradaId") as string;
 		const tipoSaidaId = formData.get("tipoSaidaId") as string;
 		const formaPagamentoId = formData.get("formaPagamentoId") as string;
@@ -62,6 +66,8 @@ export function TransactionForm() {
 			valor,
 			data,
 			observacoes: observacoes || undefined,
+			comprovante: comprovanteUrl || undefined,
+			localId: localId || undefined,
 			tipoEntradaId: tipoEntradaId || undefined,
 			tipoSaidaId: tipoSaidaId || undefined,
 			formaPagamentoId: formaPagamentoId || undefined,
@@ -148,6 +154,48 @@ export function TransactionForm() {
 									defaultValue={new Date().toISOString().split("T")[0]}
 									required
 								/>
+							</div>
+
+							<div>
+								<Label htmlFor="localId">Local</Label>
+								<select
+									id="localId"
+									name="localId"
+									className="w-full rounded-md border p-2"
+								>
+									<option value="">Selecione um local (opcional)</option>
+									{locais?.map((local) => (
+										<option key={local.id} value={local.id}>
+											📍 {local.name}
+										</option>
+									))}
+								</select>
+							</div>
+
+							<div>
+								<Label>Comprovante</Label>
+								<div className="space-y-2">
+									<UploadButton
+										endpoint="imageUploader"
+										onClientUploadComplete={(res) => {
+											if (res?.[0]) {
+												setComprovanteUrl(res[0].url);
+											}
+										}}
+										onUploadError={(error: Error) => {
+											console.error("Upload error:", error);
+										}}
+										className="w-full"
+									/>
+									{comprovanteUrl && (
+										<div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
+											<span className="text-green-600">✅</span>
+											<span className="text-green-700 text-sm">
+												Comprovante enviado com sucesso!
+											</span>
+										</div>
+									)}
+								</div>
 							</div>
 
 							{tipoTransacao === "entrada" && (

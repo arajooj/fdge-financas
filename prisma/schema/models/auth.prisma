@@ -45,6 +45,7 @@ model User {
     tipoEntradas    TipoEntradas[]
     formasPagamento FormasPagamento[]
     transacoes      Transacao[]
+    locais         Local[]
 
     @@map("Auth_Users")
 }

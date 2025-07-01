@@ -61,6 +61,12 @@ export function TransactionList() {
 									<p className="font-medium">{transacao.descricao}</p>
 									<div className="flex items-center gap-2 text-muted-foreground text-sm">
 										<span>{formatDate(transacao.data)}</span>
+										{transacao.local && (
+											<>
+												<span>•</span>
+												<span>📍 {transacao.local.name}</span>
+											</>
+										)}
 										{transacao.formaPagamento && (
 											<>
 												<span>•</span>
@@ -71,6 +77,29 @@ export function TransactionList() {
 											</>
 										)}
 									</div>
+									{transacao.comprovante && (
+										<div className="mt-1">
+											<a
+												href={transacao.comprovante}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="text-blue-600 text-xs hover:underline"
+											>
+												📄 Ver comprovante
+											</a>
+											{transacao.comprovante.match(
+												/\.(jpg|jpeg|png|gif|webp)$/i,
+											) && (
+												<div className="mt-2">
+													<img
+														src={transacao.comprovante}
+														alt="Comprovante"
+														className="h-16 w-16 rounded border object-cover"
+													/>
+												</div>
+											)}
+										</div>
+									)}
 								</div>
 							</div>
 							<div className="text-right">

@@ -1,3 +1,20 @@
+model Local {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+    description String?
+
+    userId String @db.ObjectId
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    // Relacionamento com transações
+    transacoes Transacao[]
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    @@map("Finance_Locais")
+}
+
 model TipoSaidas {
     id String @id @default(auto()) @map("_id") @db.ObjectId
     name String
@@ -13,7 +30,7 @@ model TipoSaidas {
     // Relacionamento com transações
     transacoes Transacao[]
     
-    @@map("TipoSaidas")
+    @@map("Finance_TipoSaidas")
 }
 
 model TipoEntradas {
@@ -31,7 +48,7 @@ model TipoEntradas {
     // Relacionamento com transações
     transacoes Transacao[]
     
-    @@map("TipoEntradas")
+    @@map("Finance_TipoEntradas")
 }
 
 model FormasPagamento {
@@ -49,7 +66,7 @@ model FormasPagamento {
     // Relacionamento com transações
     transacoes Transacao[]
     
-    @@map("FormasPagamento")
+    @@map("Finance_FormasPagamento")
 }
 
 model Transacao {
@@ -58,6 +75,7 @@ model Transacao {
     valor Float
     data DateTime
     observacoes String?
+    comprovante String? // URL da imagem do comprovante/nota fiscal
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     
@@ -65,7 +83,7 @@ model Transacao {
     userId String @db.ObjectId
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     
-    // Relacionamentos com tipos e forma de pagamento
+    // Relacionamentos com tipos, forma de pagamento e local
     tipoEntradaId String? @db.ObjectId
     tipoEntrada TipoEntradas? @relation(fields: [tipoEntradaId], references: [id], onDelete: SetNull)
     
@@ -75,5 +93,8 @@ model Transacao {
     formaPagamentoId String? @db.ObjectId
     formaPagamento FormasPagamento? @relation(fields: [formaPagamentoId], references: [id], onDelete: SetNull)
     
-    @@map("Transacoes")
+    localId String? @db.ObjectId
+    local Local? @relation(fields: [localId], references: [id], onDelete: SetNull)
+    
+    @@map("Finance_Transacoes")
 }

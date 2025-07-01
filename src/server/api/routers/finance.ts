@@ -305,6 +305,102 @@ export const financeRouter = createTRPCRouter({
 			return { success: true };
 		}),
 
+	// ===== LOCAIS =====
+
+	// Criar local
+	createLocal: protectedProcedure
+		.input(
+			z.object({
+				name: z.string().min(1, "Nome é obrigatório"),
+				description: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session.user.id;
+
+			const local = await ctx.db.local.create({
+				data: {
+					name: input.name,
+					description: input.description,
+					userId,
+				},
+			});
+
+			return local;
+		}),
+
+	// Listar locais do usuário
+	getLocais: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
+
+		const locais = await ctx.db.local.findMany({
+			where: { userId },
+			orderBy: { name: "asc" },
+		});
+
+		return locais;
+	}),
+
+	// Atualizar local
+	updateLocal: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				name: z.string().min(1, "Nome é obrigatório"),
+				description: z.string().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session.user.id;
+
+			// Verificar se o local pertence ao usuário
+			const existingLocal = await ctx.db.local.findFirst({
+				where: { id: input.id, userId },
+			});
+
+			if (!existingLocal) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Local não encontrado",
+				});
+			}
+
+			const local = await ctx.db.local.update({
+				where: { id: input.id },
+				data: {
+					name: input.name,
+					description: input.description,
+				},
+			});
+
+			return local;
+		}),
+
+	// Deletar local
+	deleteLocal: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session.user.id;
+
+			// Verificar se o local pertence ao usuário
+			const existingLocal = await ctx.db.local.findFirst({
+				where: { id: input.id, userId },
+			});
+
+			if (!existingLocal) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Local não encontrado",
+				});
+			}
+
+			await ctx.db.local.delete({
+				where: { id: input.id },
+			});
+
+			return { success: true };
+		}),
+
 	// ===== TRANSAÇÕES =====
 
 	// Criar transação
@@ -315,9 +411,11 @@ export const financeRouter = createTRPCRouter({
 				valor: z.number().positive("Valor deve ser positivo"),
 				data: z.date(),
 				observacoes: z.string().optional(),
+				comprovante: z.string().optional(),
 				tipoEntradaId: z.string().optional(),
 				tipoSaidaId: z.string().optional(),
 				formaPagamentoId: z.string().optional(),
+				localId: z.string().optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -368,21 +466,36 @@ export const financeRouter = createTRPCRouter({
 				}
 			}
 
+			if (input.localId) {
+				const local = await ctx.db.local.findFirst({
+					where: { id: input.localId, userId },
+				});
+				if (!local) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Local não encontrado",
+					});
+				}
+			}
+
 			const transacao = await ctx.db.transacao.create({
 				data: {
 					descricao: input.descricao,
 					valor: input.valor,
 					data: input.data,
 					observacoes: input.observacoes,
+					comprovante: input.comprovante,
 					tipoEntradaId: input.tipoEntradaId,
 					tipoSaidaId: input.tipoSaidaId,
 					formaPagamentoId: input.formaPagamentoId,
+					localId: input.localId,
 					userId,
 				},
 				include: {
 					tipoEntrada: true,
 					tipoSaida: true,
 					formaPagamento: true,
+					local: true,
 				},
 			});
 
@@ -419,6 +532,7 @@ export const financeRouter = createTRPCRouter({
 					tipoEntrada: true,
 					tipoSaida: true,
 					formaPagamento: true,
+					local: true,
 				},
 			});
 
