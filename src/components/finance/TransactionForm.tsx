@@ -66,12 +66,14 @@ export function TransactionForm() {
 		const formaPagamentoId = formData.get("formaPagamentoId") as string;
 
 		// Combinar data e horário
-		const data = new Date(dataString);
+		let data: Date;
 		if (horarioString) {
-			const [horas, minutos] = horarioString.split(":").map(Number);
-			if (horas !== undefined && minutos !== undefined) {
-				data.setHours(horas, minutos, 0, 0);
-			}
+			// Criar data com horário local (sem conversão UTC)
+			const dataCompleta = new Date(`${dataString}T${horarioString}:00`);
+			data = dataCompleta;
+		} else {
+			// Se não tem horário, usar apenas a data
+			data = new Date(dataString);
 		}
 
 		await createTransacao.mutateAsync({
