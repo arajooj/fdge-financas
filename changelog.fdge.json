@@ -1,6 +1,24 @@
 {
   "changelog": [
     {
+      "version": "0.0.3",
+      "novo": [
+        "Suporte para transações parceladas no módulo financeiro",
+        "Botão para alternar entre temas claro e escuro, facilitando a personalização da aparência",
+        "Campo de horário adicionado ao formulário de transações para registrar data e hora com precisão"
+      ],
+      "alteracoes": [
+        "Melhorias no visual e estilo do aplicativo, incluindo bordas, sombras, animações e layout mais moderno",
+        "Atualização do idioma do site para português do Brasil para melhor experiência local",
+        "Lista de transações agora exibe as 5 mais recentes com data e hora detalhadas",
+        "Ajustes na formatação de valores monetários para exibição consistente em todo o app",
+        "Correção no registro de data e hora para mostrar o horário local correto sem erros"
+      ],
+      "removidos": [
+        "Definições duplicadas da formatação de valores monetários em componentes específicos"
+      ]
+    },
+    {
       "version": "0.0.2",
       "novo": [
         "Adicionada a entidade 'Local' com operações básicas e integração na interface e API.",
