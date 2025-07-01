@@ -93,9 +93,9 @@ export function TransactionForm() {
 	};
 
 	return (
-		<Card>
+		<Card className="border-border/50 shadow-lg">
 			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
+				<CardTitle className="flex items-center gap-2 text-xl">
 					<span>📝</span>
 					Nova Transação
 				</CardTitle>
@@ -104,9 +104,11 @@ export function TransactionForm() {
 			<CardContent>
 				<Dialog open={isOpen} onOpenChange={setIsOpen}>
 					<DialogTrigger asChild>
-						<Button className="w-full">Adicionar Transação</Button>
+						<Button className="w-full transition-all duration-200 hover:scale-105">
+							Adicionar Transação
+						</Button>
 					</DialogTrigger>
-					<DialogContent className="max-w-md">
+					<DialogContent className="max-w-md border-border/50">
 						<DialogHeader>
 							<DialogTitle>Nova Transação</DialogTitle>
 							<DialogDescription>
@@ -192,7 +194,7 @@ export function TransactionForm() {
 								<select
 									id="localId"
 									name="localId"
-									className="w-full rounded-md border p-2"
+									className="w-full rounded-md border border-border bg-background p-2 text-foreground"
 								>
 									<option value="">Selecione um local (opcional)</option>
 									{locais?.map((local) => (
@@ -219,9 +221,11 @@ export function TransactionForm() {
 										className="w-full"
 									/>
 									{comprovanteUrl && (
-										<div className="flex items-center gap-2 rounded-md border border-green-200 bg-green-50 p-2">
-											<span className="text-green-600">✅</span>
-											<span className="text-green-700 text-sm">
+										<div className="flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 p-2 dark:border-emerald-800 dark:bg-emerald-950/20">
+											<span className="text-emerald-600 dark:text-emerald-400">
+												✅
+											</span>
+											<span className="text-emerald-700 text-sm dark:text-emerald-300">
 												Comprovante enviado com sucesso!
 											</span>
 										</div>
@@ -235,7 +239,7 @@ export function TransactionForm() {
 									<select
 										id="tipoEntradaId"
 										name="tipoEntradaId"
-										className="w-full rounded-md border p-2"
+										className="w-full rounded-md border border-border bg-background p-2 text-foreground"
 										required
 									>
 										<option value="">Selecione um tipo de entrada</option>
@@ -253,7 +257,7 @@ export function TransactionForm() {
 									<select
 										id="tipoSaidaId"
 										name="tipoSaidaId"
-										className="w-full rounded-md border p-2"
+										className="w-full rounded-md border border-border bg-background p-2 text-foreground"
 										required
 									>
 										<option value="">Selecione um tipo de saída</option>
@@ -271,7 +275,7 @@ export function TransactionForm() {
 								<select
 									id="formaPagamentoId"
 									name="formaPagamentoId"
-									className="w-full rounded-md border p-2"
+									className="w-full rounded-md border border-border bg-background p-2 text-foreground"
 								>
 									<option value="">Selecione uma forma de pagamento</option>
 									{formasPagamento?.map((forma) => (
@@ -298,7 +302,7 @@ export function TransactionForm() {
 										type="checkbox"
 										checked={isParcelada}
 										onChange={(e) => setIsParcelada(e.target.checked)}
-										className="rounded"
+										className="rounded border-border bg-background text-primary focus:ring-primary"
 									/>
 									Transação Parcelada
 								</Label>

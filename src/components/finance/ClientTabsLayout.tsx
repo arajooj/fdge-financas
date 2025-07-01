@@ -10,9 +10,9 @@ export default function ClientTabsLayout() {
 	const [tab, setTab] = useState("dashboard");
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className="min-h-screen bg-background">
 			<FinanceHeader onTabChange={setTab} activeTab={tab} />
-			<div className="mx-auto max-w-4xl py-8">
+			<div className="mx-auto max-w-4xl px-4 py-8">
 				{tab === "dashboard" && <FinanceManager />}
 				{tab === "adicionar" && <TransactionForm />}
 				{tab === "config" && <ConfiguracoesManager />}

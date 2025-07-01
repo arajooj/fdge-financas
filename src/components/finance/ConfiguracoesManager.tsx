@@ -49,7 +49,6 @@ export function ConfiguracoesManager() {
 		api.finance.getFormasPagamento.useQuery();
 	const { data: locais, refetch: refetchLocais } =
 		api.finance.getLocais.useQuery();
-	const { data: resumo } = api.finance.getResumo.useQuery({});
 
 	// Mutations - Create
 	const createTipoSaida = api.finance.createTipoSaida.useMutation({
@@ -224,12 +223,12 @@ export function ConfiguracoesManager() {
 	};
 
 	return (
-		<div className="container mx-auto space-y-6 p-6">
+		<div className="space-y-6">
 			<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
 				{/* Tipos de Saída */}
-				<Card>
+				<Card className="border-border/50 shadow-lg">
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-xl">
 							<span>💸</span>
 							Tipos de Saída
 						</CardTitle>
@@ -244,7 +243,7 @@ export function ConfiguracoesManager() {
 									Adicionar Tipo
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className="border-border/50">
 								<DialogHeader>
 									<DialogTitle>Novo Tipo de Saída</DialogTitle>
 									<DialogDescription>
@@ -290,21 +289,21 @@ export function ConfiguracoesManager() {
 							{tiposSaida?.map((tipo) => (
 								<div
 									key={tipo.id}
-									className="flex items-center justify-between rounded-lg border p-2"
+									className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-3 transition-all duration-200 hover:bg-muted/30"
 								>
-									<div className="flex items-center gap-2">
-										{tipo.emoji && <span>{tipo.emoji}</span>}
-										<span className="font-medium">{tipo.name}</span>
+									<div className="flex min-w-0 flex-1 items-center gap-2">
+										{tipo.emoji && (
+											<span className="flex-shrink-0">{tipo.emoji}</span>
+										)}
+										<span className="truncate font-medium">{tipo.name}</span>
 									</div>
-									<div className="flex items-center gap-2">
-										<Badge variant="secondary">
-											R$ {(resumo?.saidasPorTipo?.[tipo.name] || 0).toFixed(2)}
-										</Badge>
+									<div className="flex flex-shrink-0 items-center gap-2">
 										<Dialog>
 											<DialogTrigger asChild>
 												<Button
 													size="sm"
 													variant="outline"
+													className="flex-shrink-0"
 													onClick={() =>
 														setEditingItem({
 															type: "tipoSaida",
@@ -318,7 +317,7 @@ export function ConfiguracoesManager() {
 													✏️
 												</Button>
 											</DialogTrigger>
-											<DialogContent>
+											<DialogContent className="border-border/50">
 												<DialogHeader>
 													<DialogTitle>Editar Tipo de Saída</DialogTitle>
 													<DialogDescription>
@@ -382,9 +381,9 @@ export function ConfiguracoesManager() {
 				</Card>
 
 				{/* Tipos de Entrada */}
-				<Card>
+				<Card className="border-border/50 shadow-lg">
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-xl">
 							<span>💰</span>
 							Tipos de Entrada
 						</CardTitle>
@@ -399,7 +398,7 @@ export function ConfiguracoesManager() {
 									Adicionar Tipo
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className="border-border/50">
 								<DialogHeader>
 									<DialogTitle>Novo Tipo de Entrada</DialogTitle>
 									<DialogDescription>
@@ -445,22 +444,21 @@ export function ConfiguracoesManager() {
 							{tiposEntrada?.map((tipo) => (
 								<div
 									key={tipo.id}
-									className="flex items-center justify-between rounded-lg border p-2"
+									className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-3 transition-all duration-200 hover:bg-muted/30"
 								>
-									<div className="flex items-center gap-2">
-										{tipo.emoji && <span>{tipo.emoji}</span>}
-										<span className="font-medium">{tipo.name}</span>
+									<div className="flex min-w-0 flex-1 items-center gap-2">
+										{tipo.emoji && (
+											<span className="flex-shrink-0">{tipo.emoji}</span>
+										)}
+										<span className="truncate font-medium">{tipo.name}</span>
 									</div>
-									<div className="flex items-center gap-2">
-										<Badge variant="secondary">
-											R${" "}
-											{(resumo?.entradasPorTipo?.[tipo.name] || 0).toFixed(2)}
-										</Badge>
+									<div className="flex flex-shrink-0 items-center gap-2">
 										<Dialog>
 											<DialogTrigger asChild>
 												<Button
 													size="sm"
 													variant="outline"
+													className="flex-shrink-0"
 													onClick={() =>
 														setEditingItem({
 															type: "tipoEntrada",
@@ -474,7 +472,7 @@ export function ConfiguracoesManager() {
 													✏️
 												</Button>
 											</DialogTrigger>
-											<DialogContent>
+											<DialogContent className="border-border/50">
 												<DialogHeader>
 													<DialogTitle>Editar Tipo de Entrada</DialogTitle>
 													<DialogDescription>
@@ -540,9 +538,9 @@ export function ConfiguracoesManager() {
 				</Card>
 
 				{/* Formas de Pagamento */}
-				<Card>
+				<Card className="border-border/50 shadow-lg">
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-xl">
 							<span>💳</span>
 							Formas de Pagamento
 						</CardTitle>
@@ -557,7 +555,7 @@ export function ConfiguracoesManager() {
 									Adicionar Forma
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className="border-border/50">
 								<DialogHeader>
 									<DialogTitle>Nova Forma de Pagamento</DialogTitle>
 									<DialogDescription>
@@ -605,18 +603,21 @@ export function ConfiguracoesManager() {
 							{formasPagamento?.map((forma) => (
 								<div
 									key={forma.id}
-									className="flex items-center justify-between rounded-lg border p-2"
+									className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-3 transition-all duration-200 hover:bg-muted/30"
 								>
-									<div className="flex items-center gap-2">
-										{forma.emoji && <span>{forma.emoji}</span>}
-										<span className="font-medium">{forma.name}</span>
+									<div className="flex min-w-0 flex-1 items-center gap-2">
+										{forma.emoji && (
+											<span className="flex-shrink-0">{forma.emoji}</span>
+										)}
+										<span className="truncate font-medium">{forma.name}</span>
 									</div>
-									<div className="flex items-center gap-2">
+									<div className="flex flex-shrink-0 items-center gap-2">
 										<Dialog>
 											<DialogTrigger asChild>
 												<Button
 													size="sm"
 													variant="outline"
+													className="flex-shrink-0"
 													onClick={() =>
 														setEditingItem({
 															type: "formaPagamento",
@@ -630,7 +631,7 @@ export function ConfiguracoesManager() {
 													✏️
 												</Button>
 											</DialogTrigger>
-											<DialogContent>
+											<DialogContent className="border-border/50">
 												<DialogHeader>
 													<DialogTitle>Editar Forma de Pagamento</DialogTitle>
 													<DialogDescription>
@@ -696,9 +697,9 @@ export function ConfiguracoesManager() {
 				</Card>
 
 				{/* Locais */}
-				<Card>
+				<Card className="border-border/50 shadow-lg">
 					<CardHeader>
-						<CardTitle className="flex items-center gap-2">
+						<CardTitle className="flex items-center gap-2 text-xl">
 							<span>📍</span>
 							Locais
 						</CardTitle>
@@ -713,7 +714,7 @@ export function ConfiguracoesManager() {
 									Adicionar Local
 								</Button>
 							</DialogTrigger>
-							<DialogContent>
+							<DialogContent className="border-border/50">
 								<DialogHeader>
 									<DialogTitle>Novo Local</DialogTitle>
 									<DialogDescription>
@@ -755,22 +756,23 @@ export function ConfiguracoesManager() {
 							{locais?.map((local) => (
 								<div
 									key={local.id}
-									className="flex items-center justify-between rounded-lg border p-2"
+									className="flex items-center gap-3 rounded-lg border border-border/50 bg-card/50 p-3 transition-all duration-200 hover:bg-muted/30"
 								>
-									<div>
-										<span className="font-medium">{local.name}</span>
+									<div className="flex min-w-0 flex-1 flex-col">
+										<span className="truncate font-medium">{local.name}</span>
 										{local.description && (
-											<p className="text-muted-foreground text-sm">
+											<p className="truncate text-muted-foreground text-sm">
 												{local.description}
 											</p>
 										)}
 									</div>
-									<div className="flex items-center gap-2">
+									<div className="flex flex-shrink-0 items-center gap-2">
 										<Dialog>
 											<DialogTrigger asChild>
 												<Button
 													size="sm"
 													variant="outline"
+													className="flex-shrink-0"
 													onClick={() =>
 														setEditingItem({
 															type: "local",
@@ -783,7 +785,7 @@ export function ConfiguracoesManager() {
 													✏️
 												</Button>
 											</DialogTrigger>
-											<DialogContent>
+											<DialogContent className="border-border/50">
 												<DialogHeader>
 													<DialogTitle>Editar Local</DialogTitle>
 													<DialogDescription>

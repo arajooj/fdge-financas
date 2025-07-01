@@ -18,12 +18,12 @@ export function ModeToggle() {
 			variant="outline"
 			size="icon"
 			onClick={toggleTheme}
-			className="h-9 w-9"
+			className="h-9 w-9 transition-all duration-200 hover:scale-105 hover:shadow-md"
 		>
 			{theme === "light" ? (
-				<Moon className="h-[1.2rem] w-[1.2rem]" />
+				<Moon className="h-[1.2rem] w-[1.2rem] transition-transform duration-200" />
 			) : (
-				<Sun className="h-[1.2rem] w-[1.2rem]" />
+				<Sun className="h-[1.2rem] w-[1.2rem] transition-transform duration-200" />
 			)}
 			<span className="sr-only">Alternar tema</span>
 		</Button>

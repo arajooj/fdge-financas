@@ -33,9 +33,9 @@ export function TransactionList() {
 	};
 
 	return (
-		<Card>
+		<Card className="border-border/50 shadow-lg">
 			<CardHeader>
-				<CardTitle className="flex items-center gap-2">
+				<CardTitle className="flex items-center gap-2 text-xl">
 					<span>📊</span>5 Transações Mais Recentes
 				</CardTitle>
 				<CardDescription>
@@ -47,17 +47,17 @@ export function TransactionList() {
 					{transacoes?.items.map((transacao) => (
 						<div
 							key={transacao.id}
-							className="flex items-center justify-between rounded-lg border p-3"
+							className="flex items-center justify-between rounded-lg border border-border/50 bg-card/50 p-4 transition-all duration-200 hover:bg-muted/30 hover:shadow-sm"
 						>
 							<div className="flex items-center gap-3">
 								<div className="flex items-center gap-2">
 									{transacao.tipoEntrada && (
-										<span className="text-green-600">
+										<span className="text-emerald-600 dark:text-emerald-400">
 											{transacao.tipoEntrada.emoji}
 										</span>
 									)}
 									{transacao.tipoSaida && (
-										<span className="text-red-600">
+										<span className="text-red-600 dark:text-red-400">
 											{transacao.tipoSaida.emoji}
 										</span>
 									)}
@@ -88,7 +88,7 @@ export function TransactionList() {
 												href={transacao.comprovante}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="text-blue-600 text-xs hover:underline"
+												className="text-primary text-xs transition-colors hover:underline"
 											>
 												📄 Ver comprovante
 											</a>
@@ -99,7 +99,7 @@ export function TransactionList() {
 													<img
 														src={transacao.comprovante}
 														alt="Comprovante"
-														className="h-16 w-16 rounded border object-cover"
+														className="h-16 w-16 rounded border border-border/50 object-cover shadow-sm"
 													/>
 												</div>
 											)}
@@ -109,7 +109,7 @@ export function TransactionList() {
 							</div>
 							<div className="text-right">
 								<p
-									className={`font-bold ${transacao.tipoEntrada ? "text-green-600" : "text-red-600"}`}
+									className={`font-bold ${transacao.tipoEntrada ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
 								>
 									{transacao.tipoEntrada ? "+" : "-"}{" "}
 									{formatCurrency(transacao.valor)}
