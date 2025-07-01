@@ -1,3 +1,7 @@
+import {
+	TipoSaidasCreateWithoutUserInputSchema,
+	TipoSaidasUpdateWithoutUserInputSchema,
+} from "@/prisma/zod";
 import type { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -9,13 +13,7 @@ export const financeRouter = createTRPCRouter({
 
 	// Criar tipo de saída
 	createTipoSaida: protectedProcedure
-		.input(
-			z.object({
-				name: z.string().min(1, "Nome é obrigatório"),
-				emoji: z.string().optional(),
-				description: z.string().optional(),
-			}),
-		)
+		.input(TipoSaidasCreateWithoutUserInputSchema)
 		.mutation(async ({ ctx, input }) => {
 			const userId = ctx.session.user.id;
 

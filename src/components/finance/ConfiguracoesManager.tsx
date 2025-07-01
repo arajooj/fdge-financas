@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import type { TipoSaidas } from "@/prisma/zod";
 import { api } from "@/trpc/react";
 import { useState } from "react";
 
@@ -30,6 +31,14 @@ export function ConfiguracoesManager() {
 		formaPagamento: false,
 		local: false,
 	});
+
+	const [editingItem, setEditingItem] = useState<{
+		type: "tipoSaida" | "tipoEntrada" | "formaPagamento" | "local";
+		id: string;
+		name: string;
+		emoji?: string;
+		description?: string;
+	} | null>(null);
 
 	// Queries
 	const { data: tiposSaida, refetch: refetchTiposSaida } =
@@ -42,7 +51,7 @@ export function ConfiguracoesManager() {
 		api.finance.getLocais.useQuery();
 	const { data: resumo } = api.finance.getResumo.useQuery({});
 
-	// Mutations
+	// Mutations - Create
 	const createTipoSaida = api.finance.createTipoSaida.useMutation({
 		onSuccess: () => {
 			refetchTiposSaida();
@@ -71,6 +80,40 @@ export function ConfiguracoesManager() {
 		},
 	});
 
+	// Mutations - Update
+	const updateTipoSaida = api.finance.updateTipoSaida.useMutation({
+		onSuccess: () => {
+			refetchTiposSaida();
+			setEditingItem(null);
+			setLoadingStates((prev) => ({ ...prev, tipoSaida: false }));
+		},
+	});
+
+	const updateTipoEntrada = api.finance.updateTipoEntrada.useMutation({
+		onSuccess: () => {
+			refetchTiposEntrada();
+			setEditingItem(null);
+			setLoadingStates((prev) => ({ ...prev, tipoEntrada: false }));
+		},
+	});
+
+	const updateFormaPagamento = api.finance.updateFormaPagamento.useMutation({
+		onSuccess: () => {
+			refetchFormasPagamento();
+			setEditingItem(null);
+			setLoadingStates((prev) => ({ ...prev, formaPagamento: false }));
+		},
+	});
+
+	const updateLocal = api.finance.updateLocal.useMutation({
+		onSuccess: () => {
+			refetchLocais();
+			setEditingItem(null);
+			setLoadingStates((prev) => ({ ...prev, local: false }));
+		},
+	});
+
+	// Handlers - Create
 	const handleCreateTipoSaida = async (formData: FormData) => {
 		setLoadingStates((prev) => ({ ...prev, tipoSaida: true }));
 		const name = formData.get("name") as string;
@@ -116,6 +159,65 @@ export function ConfiguracoesManager() {
 		const description = formData.get("description") as string;
 
 		await createLocal.mutateAsync({
+			name,
+			description: description || undefined,
+		});
+	};
+
+	// Handlers - Update
+	const handleUpdateTipoSaida = async (formData: FormData) => {
+		if (!editingItem) return;
+		setLoadingStates((prev) => ({ ...prev, tipoSaida: true }));
+		const name = formData.get("name") as string;
+		const emoji = formData.get("emoji") as string;
+		const description = formData.get("description") as string;
+
+		await updateTipoSaida.mutateAsync({
+			id: editingItem.id,
+			name,
+			emoji: emoji || undefined,
+			description: description || undefined,
+		});
+	};
+
+	const handleUpdateTipoEntrada = async (formData: FormData) => {
+		if (!editingItem) return;
+		setLoadingStates((prev) => ({ ...prev, tipoEntrada: true }));
+		const name = formData.get("name") as string;
+		const emoji = formData.get("emoji") as string;
+		const description = formData.get("description") as string;
+
+		await updateTipoEntrada.mutateAsync({
+			id: editingItem.id,
+			name,
+			emoji: emoji || undefined,
+			description: description || undefined,
+		});
+	};
+
+	const handleUpdateFormaPagamento = async (formData: FormData) => {
+		if (!editingItem) return;
+		setLoadingStates((prev) => ({ ...prev, formaPagamento: true }));
+		const name = formData.get("name") as string;
+		const emoji = formData.get("emoji") as string;
+		const description = formData.get("description") as string;
+
+		await updateFormaPagamento.mutateAsync({
+			id: editingItem.id,
+			name,
+			emoji: emoji || undefined,
+			description: description || undefined,
+		});
+	};
+
+	const handleUpdateLocal = async (formData: FormData) => {
+		if (!editingItem) return;
+		setLoadingStates((prev) => ({ ...prev, local: true }));
+		const name = formData.get("name") as string;
+		const description = formData.get("description") as string;
+
+		await updateLocal.mutateAsync({
+			id: editingItem.id,
 			name,
 			description: description || undefined,
 		});
@@ -191,12 +293,83 @@ export function ConfiguracoesManager() {
 									className="flex items-center justify-between rounded-lg border p-2"
 								>
 									<div className="flex items-center gap-2">
-										<span>{tipo.emoji}</span>
+										{tipo.emoji && <span>{tipo.emoji}</span>}
 										<span className="font-medium">{tipo.name}</span>
 									</div>
-									<Badge variant="secondary">
-										R$ {(resumo?.saidasPorTipo?.[tipo.name] || 0).toFixed(2)}
-									</Badge>
+									<div className="flex items-center gap-2">
+										<Badge variant="secondary">
+											R$ {(resumo?.saidasPorTipo?.[tipo.name] || 0).toFixed(2)}
+										</Badge>
+										<Dialog>
+											<DialogTrigger asChild>
+												<Button
+													size="sm"
+													variant="outline"
+													onClick={() =>
+														setEditingItem({
+															type: "tipoSaida",
+															id: tipo.id,
+															name: tipo.name,
+															emoji: tipo.emoji || "",
+															description: tipo.description || "",
+														})
+													}
+												>
+													✏️
+												</Button>
+											</DialogTrigger>
+											<DialogContent>
+												<DialogHeader>
+													<DialogTitle>Editar Tipo de Saída</DialogTitle>
+													<DialogDescription>
+														Edite as informações do tipo de saída
+													</DialogDescription>
+												</DialogHeader>
+												<form
+													action={handleUpdateTipoSaida}
+													className="space-y-4"
+												>
+													<div>
+														<Label htmlFor="edit-emoji-saida">Emoji</Label>
+														<Input
+															id="edit-emoji-saida"
+															name="emoji"
+															defaultValue={editingItem?.emoji || ""}
+															placeholder="💸"
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-name-saida">Nome</Label>
+														<Input
+															id="edit-name-saida"
+															name="name"
+															defaultValue={editingItem?.name || ""}
+															placeholder="Alimentação"
+															required
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-description-saida">
+															Descrição
+														</Label>
+														<Input
+															id="edit-description-saida"
+															name="description"
+															defaultValue={editingItem?.description || ""}
+															placeholder="Gastos com comida"
+														/>
+													</div>
+													<Button
+														type="submit"
+														disabled={loadingStates.tipoSaida}
+														className="w-full"
+													>
+														{loadingStates.tipoSaida ? "Salvando..." : "Salvar"}
+													</Button>
+												</form>
+											</DialogContent>
+										</Dialog>
+									</div>
 								</div>
 							))}
 							{tiposSaida?.length === 0 && (
@@ -275,12 +448,86 @@ export function ConfiguracoesManager() {
 									className="flex items-center justify-between rounded-lg border p-2"
 								>
 									<div className="flex items-center gap-2">
-										<span>{tipo.emoji}</span>
+										{tipo.emoji && <span>{tipo.emoji}</span>}
 										<span className="font-medium">{tipo.name}</span>
 									</div>
-									<Badge variant="secondary">
-										R$ {(resumo?.entradasPorTipo?.[tipo.name] || 0).toFixed(2)}
-									</Badge>
+									<div className="flex items-center gap-2">
+										<Badge variant="secondary">
+											R${" "}
+											{(resumo?.entradasPorTipo?.[tipo.name] || 0).toFixed(2)}
+										</Badge>
+										<Dialog>
+											<DialogTrigger asChild>
+												<Button
+													size="sm"
+													variant="outline"
+													onClick={() =>
+														setEditingItem({
+															type: "tipoEntrada",
+															id: tipo.id,
+															name: tipo.name,
+															emoji: tipo.emoji || "",
+															description: tipo.description || "",
+														})
+													}
+												>
+													✏️
+												</Button>
+											</DialogTrigger>
+											<DialogContent>
+												<DialogHeader>
+													<DialogTitle>Editar Tipo de Entrada</DialogTitle>
+													<DialogDescription>
+														Edite as informações do tipo de entrada
+													</DialogDescription>
+												</DialogHeader>
+												<form
+													action={handleUpdateTipoEntrada}
+													className="space-y-4"
+												>
+													<div>
+														<Label htmlFor="edit-emoji-entrada">Emoji</Label>
+														<Input
+															id="edit-emoji-entrada"
+															name="emoji"
+															defaultValue={editingItem?.emoji || ""}
+															placeholder="💰"
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-name-entrada">Nome</Label>
+														<Input
+															id="edit-name-entrada"
+															name="name"
+															defaultValue={editingItem?.name || ""}
+															placeholder="Salário"
+															required
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-description-entrada">
+															Descrição
+														</Label>
+														<Input
+															id="edit-description-entrada"
+															name="description"
+															defaultValue={editingItem?.description || ""}
+															placeholder="Renda mensal"
+														/>
+													</div>
+													<Button
+														type="submit"
+														disabled={loadingStates.tipoEntrada}
+														className="w-full"
+													>
+														{loadingStates.tipoEntrada
+															? "Salvando..."
+															: "Salvar"}
+													</Button>
+												</form>
+											</DialogContent>
+										</Dialog>
+									</div>
 								</div>
 							))}
 							{tiposEntrada?.length === 0 && (
@@ -358,10 +605,85 @@ export function ConfiguracoesManager() {
 							{formasPagamento?.map((forma) => (
 								<div
 									key={forma.id}
-									className="flex items-center gap-2 rounded-lg border p-2"
+									className="flex items-center justify-between rounded-lg border p-2"
 								>
-									<span>{forma.emoji}</span>
-									<span className="font-medium">{forma.name}</span>
+									<div className="flex items-center gap-2">
+										{forma.emoji && <span>{forma.emoji}</span>}
+										<span className="font-medium">{forma.name}</span>
+									</div>
+									<div className="flex items-center gap-2">
+										<Dialog>
+											<DialogTrigger asChild>
+												<Button
+													size="sm"
+													variant="outline"
+													onClick={() =>
+														setEditingItem({
+															type: "formaPagamento",
+															id: forma.id,
+															name: forma.name,
+															emoji: forma.emoji || "",
+															description: forma.description || "",
+														})
+													}
+												>
+													✏️
+												</Button>
+											</DialogTrigger>
+											<DialogContent>
+												<DialogHeader>
+													<DialogTitle>Editar Forma de Pagamento</DialogTitle>
+													<DialogDescription>
+														Edite as informações da forma de pagamento
+													</DialogDescription>
+												</DialogHeader>
+												<form
+													action={handleUpdateFormaPagamento}
+													className="space-y-4"
+												>
+													<div>
+														<Label htmlFor="edit-emoji-pagamento">Emoji</Label>
+														<Input
+															id="edit-emoji-pagamento"
+															name="emoji"
+															defaultValue={editingItem?.emoji || ""}
+															placeholder="💳"
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-name-pagamento">Nome</Label>
+														<Input
+															id="edit-name-pagamento"
+															name="name"
+															defaultValue={editingItem?.name || ""}
+															placeholder="Cartão de Crédito"
+															required
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-description-pagamento">
+															Descrição
+														</Label>
+														<Input
+															id="edit-description-pagamento"
+															name="description"
+															defaultValue={editingItem?.description || ""}
+															placeholder="Cartão principal"
+														/>
+													</div>
+													<Button
+														type="submit"
+														disabled={loadingStates.formaPagamento}
+														className="w-full"
+													>
+														{loadingStates.formaPagamento
+															? "Salvando..."
+															: "Salvar"}
+													</Button>
+												</form>
+											</DialogContent>
+										</Dialog>
+									</div>
 								</div>
 							))}
 							{formasPagamento?.length === 0 && (
@@ -442,6 +764,64 @@ export function ConfiguracoesManager() {
 												{local.description}
 											</p>
 										)}
+									</div>
+									<div className="flex items-center gap-2">
+										<Dialog>
+											<DialogTrigger asChild>
+												<Button
+													size="sm"
+													variant="outline"
+													onClick={() =>
+														setEditingItem({
+															type: "local",
+															id: local.id,
+															name: local.name,
+															description: local.description || "",
+														})
+													}
+												>
+													✏️
+												</Button>
+											</DialogTrigger>
+											<DialogContent>
+												<DialogHeader>
+													<DialogTitle>Editar Local</DialogTitle>
+													<DialogDescription>
+														Edite as informações do local
+													</DialogDescription>
+												</DialogHeader>
+												<form action={handleUpdateLocal} className="space-y-4">
+													<div>
+														<Label htmlFor="edit-name-local">Nome</Label>
+														<Input
+															id="edit-name-local"
+															name="name"
+															defaultValue={editingItem?.name || ""}
+															placeholder="Supermercado ABC"
+															required
+														/>
+													</div>
+													<div>
+														<Label htmlFor="edit-description-local">
+															Descrição
+														</Label>
+														<Input
+															id="edit-description-local"
+															name="description"
+															defaultValue={editingItem?.description || ""}
+															placeholder="Local onde faço compras"
+														/>
+													</div>
+													<Button
+														type="submit"
+														disabled={loadingStates.local}
+														className="w-full"
+													>
+														{loadingStates.local ? "Salvando..." : "Salvar"}
+													</Button>
+												</form>
+											</DialogContent>
+										</Dialog>
 									</div>
 								</div>
 							))}
