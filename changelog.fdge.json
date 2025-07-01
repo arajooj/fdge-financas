@@ -1,0 +1,20 @@
+{
+  "changelog": [
+    {
+      "version": "0.0.1",
+      "novo": [
+        "Estrutura inicial do projeto com suporte para autenticação e gerenciamento de usuários.",
+        "Login seguro com integração para uso da conta Discord.",
+        "Interface organizada para navegação e acesso às funcionalidades do app.",
+        "Estilo visual moderno e responsivo para melhor experiência do usuário.",
+        "Configuração pronta para uso local do banco de dados para acesso rápido e confiável."
+      ],
+      "alteracoes": [
+        "Documentação inicial para facilitar o entendimento e uso do projeto.",
+        "Configurações para garantir que arquivos sensíveis e desnecessários não sejam compartilhados.",
+        "Ajustes para melhorar a estabilidade e desempenho da aplicação."
+      ],
+      "removidos": []
+    }
+  ]
+}
