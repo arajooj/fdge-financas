@@ -1,0 +1,79 @@
+model TipoSaidas {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+    emoji String?
+    description String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    // Relacionamento com usuário
+    userId String @db.ObjectId
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    // Relacionamento com transações
+    transacoes Transacao[]
+    
+    @@map("TipoSaidas")
+}
+
+model TipoEntradas {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+    emoji String?
+    description String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    // Relacionamento com usuário
+    userId String @db.ObjectId
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    // Relacionamento com transações
+    transacoes Transacao[]
+    
+    @@map("TipoEntradas")
+}
+
+model FormasPagamento {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    name String
+    emoji String?
+    description String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    // Relacionamento com usuário
+    userId String @db.ObjectId
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    // Relacionamento com transações
+    transacoes Transacao[]
+    
+    @@map("FormasPagamento")
+}
+
+model Transacao {
+    id String @id @default(auto()) @map("_id") @db.ObjectId
+    descricao String
+    valor Float
+    data DateTime
+    observacoes String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
+    // Relacionamento com usuário
+    userId String @db.ObjectId
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    
+    // Relacionamentos com tipos e forma de pagamento
+    tipoEntradaId String? @db.ObjectId
+    tipoEntrada TipoEntradas? @relation(fields: [tipoEntradaId], references: [id], onDelete: SetNull)
+    
+    tipoSaidaId String? @db.ObjectId
+    tipoSaida TipoSaidas? @relation(fields: [tipoSaidaId], references: [id], onDelete: SetNull)
+    
+    formaPagamentoId String? @db.ObjectId
+    formaPagamento FormasPagamento? @relation(fields: [formaPagamentoId], references: [id], onDelete: SetNull)
+    
+    @@map("Transacoes")
+}
