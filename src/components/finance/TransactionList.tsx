@@ -12,7 +12,7 @@ import { api } from "@/trpc/react";
 
 export function TransactionList() {
 	const { data: transacoes } = api.finance.getTransacoes.useQuery({
-		limit: 10,
+		limit: 5,
 	});
 
 	const formatCurrency = (value: number) => {
@@ -23,18 +23,23 @@ export function TransactionList() {
 	};
 
 	const formatDate = (date: Date) => {
-		return new Intl.DateTimeFormat("pt-BR").format(new Date(date));
+		return new Intl.DateTimeFormat("pt-BR", {
+			day: "2-digit",
+			month: "2-digit",
+			year: "numeric",
+			hour: "2-digit",
+			minute: "2-digit",
+		}).format(new Date(date));
 	};
 
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
-					<span>📊</span>
-					Últimas Transações
+					<span>📊</span>5 Transações Mais Recentes
 				</CardTitle>
 				<CardDescription>
-					Histórico das suas transações recentes
+					Suas transações mais recentes ordenadas por data/hora
 				</CardDescription>
 			</CardHeader>
 			<CardContent>

@@ -57,12 +57,22 @@ export function TransactionForm() {
 
 		const descricao = formData.get("descricao") as string;
 		const valor = Number.parseFloat(formData.get("valor") as string);
-		const data = new Date(formData.get("data") as string);
+		const dataString = formData.get("data") as string;
+		const horarioString = formData.get("horario") as string;
 		const observacoes = formData.get("observacoes") as string;
 		const localId = formData.get("localId") as string;
 		const tipoEntradaId = formData.get("tipoEntradaId") as string;
 		const tipoSaidaId = formData.get("tipoSaidaId") as string;
 		const formaPagamentoId = formData.get("formaPagamentoId") as string;
+
+		// Combinar data e horário
+		const data = new Date(dataString);
+		if (horarioString) {
+			const [horas, minutos] = horarioString.split(":").map(Number);
+			if (horas !== undefined && minutos !== undefined) {
+				data.setHours(horas, minutos, 0, 0);
+			}
+		}
 
 		await createTransacao.mutateAsync({
 			descricao,
@@ -151,15 +161,28 @@ export function TransactionForm() {
 								/>
 							</div>
 
-							<div>
-								<Label htmlFor="data">Data</Label>
-								<Input
-									id="data"
-									name="data"
-									type="date"
-									defaultValue={new Date().toISOString().split("T")[0]}
-									required
-								/>
+							<div className="grid grid-cols-2 gap-4">
+								<div>
+									<Label htmlFor="data">Data</Label>
+									<Input
+										id="data"
+										name="data"
+										type="date"
+										defaultValue={new Date().toISOString().split("T")[0]}
+										required
+									/>
+								</div>
+								<div>
+									<Label htmlFor="horario">Horário</Label>
+									<Input
+										id="horario"
+										name="horario"
+										type="time"
+										defaultValue={new Date()
+											.toLocaleTimeString("pt-BR", { hour12: false })
+											.slice(0, 5)}
+									/>
+								</div>
 							</div>
 
 							<div>
