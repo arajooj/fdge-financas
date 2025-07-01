@@ -79,6 +79,11 @@ model Transacao {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     
+    // Campos para parcelas
+    isParcelada Boolean @default(false)
+    parcelaAtual Int? // Número da parcela atual (1, 2, 3...)
+    totalParcelas Int? // Total de parcelas (12, 6, 3...)
+    
     // Relacionamento com usuário
     userId String @db.ObjectId
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)

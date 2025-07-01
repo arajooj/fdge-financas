@@ -109,16 +109,25 @@ export function TransactionList() {
 									{transacao.tipoEntrada ? "+" : "-"}{" "}
 									{formatCurrency(transacao.valor)}
 								</p>
-								{transacao.tipoEntrada && (
-									<Badge variant="secondary" className="text-xs">
-										{transacao.tipoEntrada.name}
-									</Badge>
-								)}
-								{transacao.tipoSaida && (
-									<Badge variant="secondary" className="text-xs">
-										{transacao.tipoSaida.name}
-									</Badge>
-								)}
+								<div className="flex flex-col gap-1">
+									{transacao.tipoEntrada && (
+										<Badge variant="secondary" className="text-xs">
+											{transacao.tipoEntrada.name}
+										</Badge>
+									)}
+									{transacao.tipoSaida && (
+										<Badge variant="secondary" className="text-xs">
+											{transacao.tipoSaida.name}
+										</Badge>
+									)}
+									{transacao.isParcelada &&
+										transacao.parcelaAtual &&
+										transacao.totalParcelas && (
+											<Badge variant="outline" className="text-xs">
+												📅 {transacao.parcelaAtual}/{transacao.totalParcelas}
+											</Badge>
+										)}
+								</div>
 							</div>
 						</div>
 					))}

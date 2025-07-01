@@ -29,6 +29,9 @@ export function TransactionForm() {
 		"",
 	);
 	const [comprovanteUrl, setComprovanteUrl] = useState<string>("");
+	const [isParcelada, setIsParcelada] = useState(false);
+	const [parcelaAtual, setParcelaAtual] = useState(1);
+	const [totalParcelas, setTotalParcelas] = useState(2);
 
 	// Queries
 	const { data: tiposSaida } = api.finance.getTiposSaida.useQuery();
@@ -71,6 +74,9 @@ export function TransactionForm() {
 			tipoEntradaId: tipoEntradaId || undefined,
 			tipoSaidaId: tipoSaidaId || undefined,
 			formaPagamentoId: formaPagamentoId || undefined,
+			isParcelada,
+			parcelaAtual: isParcelada ? parcelaAtual : undefined,
+			totalParcelas: isParcelada ? totalParcelas : undefined,
 		});
 	};
 
@@ -259,6 +265,46 @@ export function TransactionForm() {
 									placeholder="Observações adicionais (opcional)"
 								/>
 							</div>
+
+							{/* Campos de Parcela */}
+							<div>
+								<Label className="flex items-center gap-2">
+									<input
+										type="checkbox"
+										checked={isParcelada}
+										onChange={(e) => setIsParcelada(e.target.checked)}
+										className="rounded"
+									/>
+									Transação Parcelada
+								</Label>
+							</div>
+
+							{isParcelada && (
+								<div className="grid grid-cols-2 gap-4">
+									<div>
+										<Label htmlFor="parcelaAtual">Parcela Atual</Label>
+										<Input
+											id="parcelaAtual"
+											type="number"
+											min="1"
+											value={parcelaAtual}
+											onChange={(e) => setParcelaAtual(Number(e.target.value))}
+											placeholder="1"
+										/>
+									</div>
+									<div>
+										<Label htmlFor="totalParcelas">Total de Parcelas</Label>
+										<Input
+											id="totalParcelas"
+											type="number"
+											min="2"
+											value={totalParcelas}
+											onChange={(e) => setTotalParcelas(Number(e.target.value))}
+											placeholder="12"
+										/>
+									</div>
+								</div>
+							)}
 
 							<Button type="submit" disabled={isLoading} className="w-full">
 								{isLoading ? "Salvando..." : "Salvar Transação"}

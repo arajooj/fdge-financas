@@ -414,6 +414,10 @@ export const financeRouter = createTRPCRouter({
 				tipoSaidaId: z.string().optional(),
 				formaPagamentoId: z.string().optional(),
 				localId: z.string().optional(),
+				// Campos para parcelas
+				isParcelada: z.boolean().default(false),
+				parcelaAtual: z.number().min(1).optional(),
+				totalParcelas: z.number().min(2).optional(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -476,6 +480,24 @@ export const financeRouter = createTRPCRouter({
 				}
 			}
 
+			// Validações para parcelas
+			if (input.isParcelada) {
+				if (!input.parcelaAtual || !input.totalParcelas) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message:
+							"Para transações parceladas, informe a parcela atual e total de parcelas",
+					});
+				}
+				if (input.parcelaAtual > input.totalParcelas) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: "Parcela atual não pode ser maior que o total de parcelas",
+					});
+				}
+			}
+
+			// Criar transação (parcelada ou não)
 			const transacao = await ctx.db.transacao.create({
 				data: {
 					descricao: input.descricao,
@@ -488,6 +510,9 @@ export const financeRouter = createTRPCRouter({
 					formaPagamentoId: input.formaPagamentoId,
 					localId: input.localId,
 					userId,
+					isParcelada: input.isParcelada,
+					parcelaAtual: input.parcelaAtual,
+					totalParcelas: input.totalParcelas,
 				},
 				include: {
 					tipoEntrada: true,
