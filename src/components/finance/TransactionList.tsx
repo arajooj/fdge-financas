@@ -8,19 +8,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
 export function TransactionList() {
 	const { data: transacoes } = api.finance.getTransacoes.useQuery({
 		limit: 5,
 	});
-
-	const formatCurrency = (value: number) => {
-		return new Intl.NumberFormat("pt-BR", {
-			style: "currency",
-			currency: "BRL",
-		}).format(value);
-	};
 
 	const formatDate = (date: Date) => {
 		return new Intl.DateTimeFormat("pt-BR", {

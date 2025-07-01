@@ -7,6 +7,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
 import { TransactionList } from "./TransactionList";
@@ -32,7 +33,7 @@ export function FinanceManager() {
 								Total Entradas
 							</p>
 							<p className="font-bold text-2xl text-emerald-600 dark:text-emerald-400">
-								R$ {resumo?.totalEntradas.toFixed(2) || "0,00"}
+								{formatCurrency(resumo?.totalEntradas || 0)}
 							</p>
 						</div>
 						<div className="rounded-lg bg-muted/30 p-4 text-center transition-all duration-200 hover:bg-muted/50">
@@ -40,7 +41,7 @@ export function FinanceManager() {
 								Total Saídas
 							</p>
 							<p className="font-bold text-2xl text-red-600 dark:text-red-400">
-								R$ {resumo?.totalSaidas.toFixed(2) || "0,00"}
+								{formatCurrency(resumo?.totalSaidas || 0)}
 							</p>
 						</div>
 						<div className="rounded-lg bg-muted/30 p-4 text-center transition-all duration-200 hover:bg-muted/50">
@@ -48,7 +49,7 @@ export function FinanceManager() {
 							<p
 								className={`font-bold text-2xl ${(resumo?.saldo || 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}
 							>
-								R$ {(resumo?.saldo || 0).toFixed(2)}
+								{formatCurrency(resumo?.saldo || 0)}
 							</p>
 						</div>
 					</div>
