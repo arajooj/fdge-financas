@@ -1,6 +1,24 @@
 {
   "changelog": [
     {
+      "version": "0.0.2",
+      "novo": [
+        "Adicionada a entidade 'Local' com operações básicas e integração na interface e API.",
+        "Implementado upload de imagens com autenticação e suporte na interface.",
+        "Adicionado recurso para anexar comprovantes e selecionar local nas transações.",
+        "Criado layout com abas para facilitar a gestão financeira.",
+        "Adicionados componentes para gerenciar categorias financeiras e formas de pagamento.",
+        "Incluídas novas guias reutilizáveis para navegação consistente.",
+        "Disponibilizadas instruções claras para configuração de variáveis de ambiente."
+      ],
+      "alteracoes": [
+        "Melhorada a organização dos componentes financeiros, removendo elementos desnecessários.",
+        "Atualizada a configuração para usar variáveis de ambiente para maior flexibilidade.",
+        "Aprimorada a aparência da interface com estilos padronizados."
+      ],
+      "removidos": []
+    },
+    {
       "version": "0.0.1",
       "novo": [
         "Estrutura inicial do projeto com suporte para autenticação e gerenciamento de usuários.",
