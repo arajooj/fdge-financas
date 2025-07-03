@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { MonthSelector } from "./MonthSelector";
 import { TransactionList } from "./TransactionList";
+import { TransactionTypesBreakdown } from "./TransactionTypesBreakdown";
 
 export function FinanceManager() {
 	const router = useRouter();
@@ -94,6 +95,13 @@ export function FinanceManager() {
 					</div>
 				</CardContent>
 			</Card>
+
+			{/* Breakdown por Tipo */}
+			<TransactionTypesBreakdown
+				entradasPorTipo={resumo?.entradasPorTipo || {}}
+				saidasPorTipo={resumo?.saidasPorTipo || {}}
+				selectedDate={selectedDate}
+			/>
 
 			{/* Lista de Transações */}
 			<TransactionList startDate={startDate} endDate={endDate} />
