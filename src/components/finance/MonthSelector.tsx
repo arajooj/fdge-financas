@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useCallback, useEffect } from "react";
 
 interface MonthSelectorProps {
 	currentDate: Date;
@@ -20,17 +21,17 @@ export function MonthSelector({
 		}).format(date);
 	};
 
-	const goToPreviousMonth = () => {
+	const goToPreviousMonth = useCallback(() => {
 		const newDate = new Date(currentDate);
 		newDate.setMonth(newDate.getMonth() - 1);
 		onDateChange(newDate);
-	};
+	}, [currentDate, onDateChange]);
 
-	const goToNextMonth = () => {
+	const goToNextMonth = useCallback(() => {
 		const newDate = new Date(currentDate);
 		newDate.setMonth(newDate.getMonth() + 1);
 		onDateChange(newDate);
-	};
+	}, [currentDate, onDateChange]);
 
 	const goToCurrentMonth = () => {
 		onDateChange(new Date());
@@ -44,11 +45,25 @@ export function MonthSelector({
 		);
 	};
 
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "ArrowLeft") {
+				event.preventDefault();
+				goToPreviousMonth();
+			} else if (event.key === "ArrowRight") {
+				event.preventDefault();
+				goToNextMonth();
+			}
+		};
+
+		document.addEventListener("keydown", handleKeyDown);
+		return () => {
+			document.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [goToPreviousMonth, goToNextMonth]);
+
 	return (
 		<Card className="border-border/50 shadow-lg">
-			<CardHeader className="pb-3">
-				<CardTitle className="text-lg">Período</CardTitle>
-			</CardHeader>
 			<CardContent>
 				<div className="flex items-center justify-between">
 					<Button
@@ -56,6 +71,7 @@ export function MonthSelector({
 						size="sm"
 						onClick={goToPreviousMonth}
 						className="flex items-center gap-1"
+						tabIndex={0}
 					>
 						<ChevronLeft className="h-4 w-4" />
 						Anterior
@@ -82,6 +98,7 @@ export function MonthSelector({
 						size="sm"
 						onClick={goToNextMonth}
 						className="flex items-center gap-1"
+						tabIndex={0}
 					>
 						Próximo
 						<ChevronRight className="h-4 w-4" />
