@@ -1,6 +1,21 @@
 {
   "changelog": [
     {
+      "version": "0.0.4",
+      "novo": [
+        "Novo componente para visualizar a divisão financeira por tipo de transação.",
+        "Função de seleção de mês para filtrar resumos e transações financeiras.",
+        "Componente para navegar e selecionar meses com facilidade."
+      ],
+      "alteracoes": [
+        "Melhorias na navegação do seletor de meses usando o teclado.",
+        "Atualização da lista de transações para mostrar apenas as do mês selecionado.",
+        "Interface mais clara com mensagens e informações dinâmicas sobre o período selecionado.",
+        "Botões do seletor de meses agora acessíveis via teclado para facilitar o uso."
+      ],
+      "removidos": []
+    },
+    {
       "version": "0.0.3",
       "novo": [
         "Suporte para transações parceladas no módulo financeiro",
