@@ -11,9 +11,16 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { api } from "@/trpc/react";
 
-export function TransactionList() {
+interface TransactionListProps {
+	startDate?: Date;
+	endDate?: Date;
+}
+
+export function TransactionList({ startDate, endDate }: TransactionListProps) {
 	const { data: transacoes } = api.finance.getTransacoes.useQuery({
-		limit: 5,
+		limit: 20,
+		startDate,
+		endDate,
 	});
 
 	const formatDate = (date: Date) => {
@@ -26,14 +33,27 @@ export function TransactionList() {
 		}).format(new Date(date));
 	};
 
+	const formatPeriod = () => {
+		if (startDate && endDate) {
+			const startMonth = new Intl.DateTimeFormat("pt-BR", {
+				month: "long",
+				year: "numeric",
+			}).format(startDate);
+			return startMonth;
+		}
+		return "Todas as transações";
+	};
+
 	return (
 		<Card className="border-border/50 shadow-lg">
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2 text-xl">
-					<span>📊</span>5 Transações Mais Recentes
+					<span>📊</span>Transações - {formatPeriod()}
 				</CardTitle>
 				<CardDescription>
-					Suas transações mais recentes ordenadas por data/hora
+					{startDate && endDate
+						? `Transações do período selecionado (${transacoes?.items.length || 0} encontradas)`
+						: "Suas transações mais recentes ordenadas por data/hora"}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
@@ -137,7 +157,9 @@ export function TransactionList() {
 								Nenhuma transação encontrada
 							</p>
 							<p className="text-muted-foreground text-sm">
-								Adicione sua primeira transação para começar
+								{startDate && endDate
+									? "Não há transações para o período selecionado"
+									: "Adicione sua primeira transação para começar"}
 							</p>
 						</div>
 					)}

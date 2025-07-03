@@ -10,21 +10,60 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { api } from "@/trpc/react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { MonthSelector } from "./MonthSelector";
 import { TransactionList } from "./TransactionList";
 
 export function FinanceManager() {
 	const router = useRouter();
+	const [selectedDate, setSelectedDate] = useState(new Date());
+
+	// Calcular início e fim do mês selecionado
+	const getMonthRange = (date: Date) => {
+		const startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+		const endDate = new Date(
+			date.getFullYear(),
+			date.getMonth() + 1,
+			0,
+			23,
+			59,
+			59,
+		);
+		return { startDate, endDate };
+	};
+
+	const { startDate, endDate } = getMonthRange(selectedDate);
 
 	// Queries
-	const { data: resumo } = api.finance.getResumo.useQuery({});
+	const { data: resumo } = api.finance.getResumo.useQuery({
+		startDate,
+		endDate,
+	});
+
+	const formatPeriod = () => {
+		return new Intl.DateTimeFormat("pt-BR", {
+			month: "long",
+			year: "numeric",
+		}).format(selectedDate);
+	};
 
 	return (
 		<div className="space-y-6">
+			{/* Seletor de Mês */}
+			<MonthSelector
+				currentDate={selectedDate}
+				onDateChange={setSelectedDate}
+			/>
+
 			{/* Resumo Financeiro */}
 			<Card className="border-border/50 shadow-lg">
 				<CardHeader>
-					<CardTitle className="text-2xl">Resumo Financeiro</CardTitle>
-					<CardDescription>Visão geral das suas finanças</CardDescription>
+					<CardTitle className="text-2xl">
+						Resumo Financeiro - {formatPeriod()}
+					</CardTitle>
+					<CardDescription>
+						Visão geral das suas finanças do período selecionado
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -57,7 +96,7 @@ export function FinanceManager() {
 			</Card>
 
 			{/* Lista de Transações */}
-			<TransactionList />
+			<TransactionList startDate={startDate} endDate={endDate} />
 		</div>
 	);
 }
