@@ -1,6 +1,14 @@
 {
   "changelog": [
     {
+      "version": "0.0.5",
+      "novo": [
+        "Filtros avançados para facilitar a busca de transações por tipo, forma de pagamento e localização"
+      ],
+      "alteracoes": [],
+      "removidos": []
+    },
+    {
       "version": "0.0.4",
       "novo": [
         "Novo componente para visualizar a divisão financeira por tipo de transação.",
