@@ -533,6 +533,11 @@ export const financeRouter = createTRPCRouter({
 				cursor: z.string().nullish(),
 				startDate: z.date().optional(),
 				endDate: z.date().optional(),
+				tipoTransacao: z.enum(["entrada", "saida"]).optional(),
+				tipoEntradaId: z.string().optional(),
+				tipoSaidaId: z.string().optional(),
+				formaPagamentoId: z.string().optional(),
+				localId: z.string().optional(),
 			}),
 		)
 		.query(async ({ ctx, input }) => {
@@ -540,10 +545,38 @@ export const financeRouter = createTRPCRouter({
 
 			const where: Prisma.TransacaoWhereInput = { userId };
 
+			// Filtro por data
 			if (input.startDate || input.endDate) {
 				where.data = {};
 				if (input.startDate) where.data.gte = input.startDate;
 				if (input.endDate) where.data.lte = input.endDate;
+			}
+
+			// Filtro por tipo de transação (entrada ou saída)
+			if (input.tipoTransacao === "entrada") {
+				where.tipoEntradaId = { not: null };
+			} else if (input.tipoTransacao === "saida") {
+				where.tipoSaidaId = { not: null };
+			}
+
+			// Filtro por tipo específico de entrada
+			if (input.tipoEntradaId) {
+				where.tipoEntradaId = input.tipoEntradaId;
+			}
+
+			// Filtro por tipo específico de saída
+			if (input.tipoSaidaId) {
+				where.tipoSaidaId = input.tipoSaidaId;
+			}
+
+			// Filtro por forma de pagamento
+			if (input.formaPagamentoId) {
+				where.formaPagamentoId = input.formaPagamentoId;
+			}
+
+			// Filtro por local
+			if (input.localId) {
+				where.localId = input.localId;
 			}
 
 			const items = await ctx.db.transacao.findMany({

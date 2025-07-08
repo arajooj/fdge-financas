@@ -1,6 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -8,8 +9,17 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { formatCurrency } from "@/lib/utils";
 import { api } from "@/trpc/react";
+import { useEffect, useState } from "react";
 
 interface TransactionListProps {
 	startDate?: Date;
@@ -17,11 +27,76 @@ interface TransactionListProps {
 }
 
 export function TransactionList({ startDate, endDate }: TransactionListProps) {
-	const { data: transacoes } = api.finance.getTransacoes.useQuery({
-		limit: 20,
-		startDate,
-		endDate,
+	// Estados para filtros
+	const [filtros, setFiltros] = useState({
+		tipoTransacao: "todos" as "todos" | "entrada" | "saida",
+		tipoEntradaId: "todos",
+		tipoSaidaId: "todos",
+		formaPagamentoId: "todos",
+		localId: "todos",
 	});
+
+	// Calcular datas do mês atual se não fornecidas
+	const [datasMes, setDatasMes] = useState<{ startDate: Date; endDate: Date }>(
+		() => {
+			if (startDate && endDate) {
+				return { startDate, endDate };
+			}
+
+			const hoje = new Date();
+			const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+			const ultimoDiaMes = new Date(
+				hoje.getFullYear(),
+				hoje.getMonth() + 1,
+				0,
+				23,
+				59,
+				59,
+			);
+
+			return { startDate: primeiroDiaMes, endDate: ultimoDiaMes };
+		},
+	);
+
+	// Queries para dados de filtro
+	const { data: tiposEntrada } = api.finance.getTiposEntrada.useQuery();
+	const { data: tiposSaida } = api.finance.getTiposSaida.useQuery();
+	const { data: formasPagamento } = api.finance.getFormasPagamento.useQuery();
+	const { data: locais } = api.finance.getLocais.useQuery();
+
+	// Query para transações com filtros
+	const { data: transacoes } = api.finance.getTransacoes.useQuery({
+		limit: 100, // Aumentar limite para mostrar mais transações
+		startDate: datasMes.startDate,
+		endDate: datasMes.endDate,
+		tipoTransacao:
+			filtros.tipoTransacao === "todos" ? undefined : filtros.tipoTransacao,
+		tipoEntradaId:
+			filtros.tipoEntradaId === "todos" ? undefined : filtros.tipoEntradaId,
+		tipoSaidaId:
+			filtros.tipoSaidaId === "todos" ? undefined : filtros.tipoSaidaId,
+		formaPagamentoId:
+			filtros.formaPagamentoId === "todos"
+				? undefined
+				: filtros.formaPagamentoId,
+		localId: filtros.localId === "todos" ? undefined : filtros.localId,
+	});
+
+	// Atualizar datas quando props mudarem
+	useEffect(() => {
+		if (startDate && endDate) {
+			setDatasMes({ startDate, endDate });
+		}
+	}, [startDate, endDate]);
+
+	// Limpar filtros específicos quando tipo de transação mudar
+	useEffect(() => {
+		if (filtros.tipoTransacao === "entrada") {
+			setFiltros((prev) => ({ ...prev, tipoSaidaId: "todos" }));
+		} else if (filtros.tipoTransacao === "saida") {
+			setFiltros((prev) => ({ ...prev, tipoEntradaId: "todos" }));
+		}
+	}, [filtros.tipoTransacao]);
 
 	const formatDate = (date: Date) => {
 		return new Intl.DateTimeFormat("pt-BR", {
@@ -34,14 +109,25 @@ export function TransactionList({ startDate, endDate }: TransactionListProps) {
 	};
 
 	const formatPeriod = () => {
-		if (startDate && endDate) {
-			const startMonth = new Intl.DateTimeFormat("pt-BR", {
-				month: "long",
-				year: "numeric",
-			}).format(startDate);
-			return startMonth;
-		}
-		return "Todas as transações";
+		const startMonth = new Intl.DateTimeFormat("pt-BR", {
+			month: "long",
+			year: "numeric",
+		}).format(datasMes.startDate);
+		return startMonth;
+	};
+
+	const limparFiltros = () => {
+		setFiltros({
+			tipoTransacao: "todos",
+			tipoEntradaId: "todos",
+			tipoSaidaId: "todos",
+			formaPagamentoId: "todos",
+			localId: "todos",
+		});
+	};
+
+	const temFiltrosAtivos = () => {
+		return Object.values(filtros).some((valor) => valor !== "todos");
 	};
 
 	return (
@@ -51,12 +137,165 @@ export function TransactionList({ startDate, endDate }: TransactionListProps) {
 					<span>📊</span>Transações - {formatPeriod()}
 				</CardTitle>
 				<CardDescription>
-					{startDate && endDate
-						? `Transações do período selecionado (${transacoes?.items.length || 0} encontradas)`
-						: "Suas transações mais recentes ordenadas por data/hora"}
+					{transacoes?.items.length || 0} transações encontradas
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
+				{/* Filtros */}
+				<div className="mb-6 space-y-4">
+					<div className="flex items-center justify-between">
+						<h3 className="font-semibold">🔍 Filtros</h3>
+						{temFiltrosAtivos() && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={limparFiltros}
+								className="text-xs"
+							>
+								Limpar Filtros
+							</Button>
+						)}
+					</div>
+
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+						{/* Tipo de Transação */}
+						<div className="space-y-2">
+							<label htmlFor="tipo-transacao" className="font-medium text-sm">
+								Tipo de Transação
+							</label>
+							<Select
+								value={filtros.tipoTransacao}
+								onValueChange={(value: string) =>
+									setFiltros((prev) => ({
+										...prev,
+										tipoTransacao: value as "todos" | "entrada" | "saida",
+									}))
+								}
+							>
+								<SelectTrigger id="tipo-transacao">
+									<SelectValue placeholder="Todos os tipos" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="todos">Todos os tipos</SelectItem>
+									<SelectItem value="entrada">💰 Entradas</SelectItem>
+									<SelectItem value="saida">💸 Saídas</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* Tipos de Entrada */}
+						{filtros.tipoTransacao !== "saida" && (
+							<div className="space-y-2">
+								<label htmlFor="tipo-entrada" className="font-medium text-sm">
+									Tipo de Entrada
+								</label>
+								<Select
+									value={filtros.tipoEntradaId}
+									onValueChange={(value: string) =>
+										setFiltros((prev) => ({ ...prev, tipoEntradaId: value }))
+									}
+								>
+									<SelectTrigger id="tipo-entrada">
+										<SelectValue placeholder="Todos os tipos de entrada" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="todos">
+											Todos os tipos de entrada
+										</SelectItem>
+										{tiposEntrada?.map((tipo) => (
+											<SelectItem key={tipo.id} value={tipo.id}>
+												{tipo.emoji} {tipo.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+
+						{/* Tipos de Saída */}
+						{filtros.tipoTransacao !== "entrada" && (
+							<div className="space-y-2">
+								<label htmlFor="tipo-saida" className="font-medium text-sm">
+									Tipo de Saída
+								</label>
+								<Select
+									value={filtros.tipoSaidaId}
+									onValueChange={(value: string) =>
+										setFiltros((prev) => ({ ...prev, tipoSaidaId: value }))
+									}
+								>
+									<SelectTrigger id="tipo-saida">
+										<SelectValue placeholder="Todos os tipos de saída" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="todos">
+											Todos os tipos de saída
+										</SelectItem>
+										{tiposSaida?.map((tipo) => (
+											<SelectItem key={tipo.id} value={tipo.id}>
+												{tipo.emoji} {tipo.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</div>
+						)}
+
+						{/* Formas de Pagamento */}
+						<div className="space-y-2">
+							<label htmlFor="forma-pagamento" className="font-medium text-sm">
+								Forma de Pagamento
+							</label>
+							<Select
+								value={filtros.formaPagamentoId}
+								onValueChange={(value: string) =>
+									setFiltros((prev) => ({ ...prev, formaPagamentoId: value }))
+								}
+							>
+								<SelectTrigger id="forma-pagamento">
+									<SelectValue placeholder="Todas as formas" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="todos">Todas as formas</SelectItem>
+									{formasPagamento?.map((forma) => (
+										<SelectItem key={forma.id} value={forma.id}>
+											{forma.emoji} {forma.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{/* Locais */}
+						<div className="space-y-2">
+							<label htmlFor="local" className="font-medium text-sm">
+								Local
+							</label>
+							<Select
+								value={filtros.localId}
+								onValueChange={(value: string) =>
+									setFiltros((prev) => ({ ...prev, localId: value }))
+								}
+							>
+								<SelectTrigger id="local">
+									<SelectValue placeholder="Todos os locais" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="todos">Todos os locais</SelectItem>
+									{locais?.map((local) => (
+										<SelectItem key={local.id} value={local.id}>
+											📍 {local.name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+				</div>
+
+				<Separator className="mb-6" />
+
+				{/* Lista de Transações */}
 				<div className="space-y-3">
 					{transacoes?.items.map((transacao) => (
 						<div
@@ -157,8 +396,8 @@ export function TransactionList({ startDate, endDate }: TransactionListProps) {
 								Nenhuma transação encontrada
 							</p>
 							<p className="text-muted-foreground text-sm">
-								{startDate && endDate
-									? "Não há transações para o período selecionado"
+								{temFiltrosAtivos()
+									? "Tente ajustar os filtros aplicados"
 									: "Adicione sua primeira transação para começar"}
 							</p>
 						</div>
